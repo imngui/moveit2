@@ -53,6 +53,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <std_msgs/msg/string.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <moveit_msgs/msg/display_trajectory.hpp>
 #endif
 
@@ -225,6 +226,8 @@ protected:
   void executeMainLoopJobs();
   void publishInteractiveMarkers(bool pose_update);
 
+  void publishGoalState();
+
   void recomputeQueryStartStateMetrics();
   void recomputeQueryGoalStateMetrics();
   void drawQueryStartState();
@@ -262,6 +265,10 @@ protected:
   rviz_rendering::MovableText* text_to_display_;
 
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr planning_group_sub_;
+
+  // Interaction joint state publisher
+  bool ip_pub_initialized_ = false;
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr ip_joint_state_pub_;
 
   // render the workspace box
   std::unique_ptr<rviz_rendering::Shape> workspace_box_;

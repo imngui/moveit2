@@ -725,6 +725,7 @@ void MotionPlanningDisplay::changedQueryGoalState()
   addStatusText("Changed goal state");
   drawQueryGoalState();
   addBackgroundJob([this] { publishInteractiveMarkers(true); }, "publishInteractiveMarkers");
+  addBackgroundJob([this] { publishGoalState(); }, "publishGoalState");
 }
 
 void MotionPlanningDisplay::drawQueryGoalState()
@@ -797,6 +798,36 @@ void MotionPlanningDisplay::resetInteractiveMarkers()
   query_start_state_->clearError();
   query_goal_state_->clearError();
   addBackgroundJob([this] { publishInteractiveMarkers(false); }, "publishInteractiveMarkers");
+}
+
+void MotionPlanningDisplay::publishGoalState()
+{
+  if (query_goal_state_property_->getBool())
+  {
+    auto goal = query_goal_state_->getState();
+    auto robot_model = goal->getRobotModel();
+    auto joint_models = robot_model->getActiveJointModels();
+    auto num_joints = joint_models.size();
+
+    auto joint_state_msg = sensor_msgs::msg::JointState();
+    joint_state_msg.name.resize(num_joints);
+    joint_state_msg.position.resize(num_joints);
+    joint_state_msg.velocity.resize(num_joints);
+    joint_state_msg.effort.resize(num_joints);
+
+    if(!ip_pub_initialized_)
+      ip_joint_state_pub_ = node_->create_publisher<sensor_msgs::msg::JointState>("/interactive_planning/joint_states", rclcpp::QoS(10));
+
+    for(std::size_t joint_idx = 0; joint_idx < num_joints; ++joint_idx)
+    {
+      joint_state_msg.name[joint_idx] = joint_models[joint_idx]->getName();
+      joint_state_msg.position[joint_idx] = *goal->getJointPositions(joint_models[joint_idx]);
+      joint_state_msg.velocity[joint_idx] = *goal->getJointVelocities(joint_models[joint_idx]);
+      joint_state_msg.effort[joint_idx] = *goal->getJointEffort(joint_models[joint_idx]);
+    }
+
+    ip_joint_state_pub_->publish(joint_state_msg);
+  }
 }
 
 void MotionPlanningDisplay::publishInteractiveMarkers(bool pose_update)

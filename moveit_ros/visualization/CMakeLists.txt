@@ -32,6 +32,8 @@ find_package(Eigen3 REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_ogre_vendor REQUIRED)
+find_package(sensor_msgs REQUIRED)
+
 
 # Finds Boost Components
 include(ConfigExtras.cmake)
