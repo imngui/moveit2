@@ -74,6 +74,8 @@
 #include "ui_motion_planning_rviz_plugin_frame.h"
 #include <moveit/utils/rclcpp_utils.h>
 
+#include <tf2_eigen/tf2_eigen.h>
+
 namespace moveit_rviz_plugin
 {
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("moveit_ros_visualization.motion_planning_display");
@@ -804,20 +806,26 @@ void MotionPlanningDisplay::publishGoalState()
 {
   if (query_goal_state_property_->getBool())
   {
+    // Get the goal state
     auto goal = query_goal_state_->getState();
+
+    // Get the robot and joint models
     auto robot_model = goal->getRobotModel();
     auto joint_models = robot_model->getActiveJointModels();
     auto num_joints = joint_models.size();
 
+    // Create the joint state publisher if it hasn't been initialized
+    if(!ip_js_pub_initialized_)
+      ip_joint_state_pub_ = node_->create_publisher<sensor_msgs::msg::JointState>("/interactive_planning/joint_states", rclcpp::QoS(10));
+
+    // Create empty joint state message
     auto joint_state_msg = sensor_msgs::msg::JointState();
     joint_state_msg.name.resize(num_joints);
     joint_state_msg.position.resize(num_joints);
     joint_state_msg.velocity.resize(num_joints);
     joint_state_msg.effort.resize(num_joints);
 
-    if(!ip_pub_initialized_)
-      ip_joint_state_pub_ = node_->create_publisher<sensor_msgs::msg::JointState>("/interactive_planning/joint_states", rclcpp::QoS(10));
-
+    // Populate the joint state message
     for(std::size_t joint_idx = 0; joint_idx < num_joints; ++joint_idx)
     {
       joint_state_msg.name[joint_idx] = joint_models[joint_idx]->getName();
@@ -826,7 +834,24 @@ void MotionPlanningDisplay::publishGoalState()
       joint_state_msg.effort[joint_idx] = *goal->getJointEffort(joint_models[joint_idx]);
     }
 
+    // Publish the joint state message
     ip_joint_state_pub_->publish(joint_state_msg);
+
+    // Create the end effector pose publisher if it hasn't been initialized
+    if(!ip_ees_pub_initialized_)
+      ip_ee_state_pub_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>("/interactive_planning/ee_state", rclcpp::QoS(10));
+
+    // Create empty pose stamped message
+    auto ee_state_msg = geometry_msgs::msg::PoseStamped();
+    ee_state_msg.header.frame_id = robot_model->getModelFrame();
+
+    // Populate pose stamped message
+    const Eigen::Isometry3d& ee_state = goal->getGlobalLinkTransform(robot_model->getLinkModelNames().back());
+    auto ee_pose_msg = tf2::toMsg(ee_state);
+    ee_state_msg.pose = ee_pose_msg;
+
+    // Publish the end effector pose message
+    ip_ee_state_pub_->publish(ee_state_msg);
   }
 }
 

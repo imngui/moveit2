@@ -33,6 +33,7 @@ find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_ogre_vendor REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 
 # Finds Boost Components
@@ -87,6 +88,8 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rviz_ogre_vendor
   rviz_common
   rviz_default_plugins
+  # geometry_msgs
+  # sensor_msgs
 )
 
 include_directories(rviz_plugin_render_tools/include

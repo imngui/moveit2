@@ -54,6 +54,7 @@
 
 #include <std_msgs/msg/string.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <moveit_msgs/msg/display_trajectory.hpp>
 #endif
 
@@ -267,8 +268,12 @@ protected:
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr planning_group_sub_;
 
   // Interaction joint state publisher
-  bool ip_pub_initialized_ = false;
+  bool ip_js_pub_initialized_ = false;
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr ip_joint_state_pub_;
+
+  // Interaction end effector state publisher
+  bool ip_ees_pub_initialized_ = false;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr ip_ee_state_pub_;
 
   // render the workspace box
   std::unique_ptr<rviz_rendering::Shape> workspace_box_;
