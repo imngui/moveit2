@@ -200,7 +200,9 @@ def generate_move_group_launch(moveit_config):
     ld.add_action(
         DeclareLaunchArgument(
             "capabilities",
-            default_value=moveit_config.move_group_capabilities["capabilities"],
+            default_value="move_group/ExecuteTaskSolutionCapability",
+            # default_value=moveit_config.move_group_capabilities,
+            # default_value=moveit_config.move_group_capabilities["capabilities"],
         )
     )
     # inhibit these default MoveGroup capabilities (space separated)
@@ -228,6 +230,7 @@ def generate_move_group_launch(moveit_config):
         "publish_state_updates": should_publish,
         "publish_transforms_updates": should_publish,
         "monitor_dynamics": False,
+        "use_sim_time": True,
     }
 
     move_group_params = [
