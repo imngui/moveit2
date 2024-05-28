@@ -228,6 +228,7 @@ def generate_move_group_launch(moveit_config):
         "publish_state_updates": should_publish,
         "publish_transforms_updates": should_publish,
         "monitor_dynamics": False,
+        "use_sim_time": True,
     }
 
     move_group_params = [
