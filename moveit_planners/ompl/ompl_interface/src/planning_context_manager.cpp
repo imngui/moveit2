@@ -68,6 +68,9 @@
 #include <ompl/geometric/planners/prm/SPARS.h>
 #include <ompl/geometric/planners/prm/SPARStwo.h>
 
+#include <ompl/geometric/planners/informedtrees/ABITstar.h>
+#include <ompl/geometric/planners/informedtrees/BITstar.h>
+
 #include <ompl/base/ConstrainedSpaceInformation.h>
 #include <ompl/base/spaces/constraint/ProjectedStateSpace.h>
 
@@ -319,6 +322,10 @@ void PlanningContextManager::registerDefaultPlanners()
   registerPlannerAllocatorHelper<og::SPARStwo>("geometric::SPARStwo");
   registerPlannerAllocatorHelper<og::STRIDE>("geometric::STRIDE");
   registerPlannerAllocatorHelper<og::TRRT>("geometric::TRRT");
+
+  registerPlannerAllocatorHelper<og::ABITstar>("geometric::ABITstar");
+  registerPlannerAllocatorHelper<og::BITstar>("geometric::BITstar");
+
 }
 
 void PlanningContextManager::registerDefaultStateSpaces()
